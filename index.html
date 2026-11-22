@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGPA & CGPA Calculator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #10141d;
+    color: #f1f3f8;
+    padding: 20px;
+}
+
+.container {
+    max-width: 850px;
+    margin: auto;
+}
+
+header {
+    text-align: center;
+    padding: 25px 10px;
+}
+
+header h1 {
+    font-size: 27px;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: #9ca8ba;
+    font-size: 14px;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.tabs button {
+    flex: 1;
+    padding: 13px;
+    border: 1px solid #30394b;
+    border-radius: 9px;
+    background: #1b2331;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tabs button.active {
+    background: #5279f5;
+    border-color: #5279f5;
+}
+
+.panel {
+    background: #1a2230;
+    border: 1px solid #30394b;
+    padding: 20px;
+    border-radius: 13px;
+    margin-bottom: 18px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.subject {
+    display: grid;
+    grid-template-columns: 2fr 0.8fr 0.8fr 38px;
+    gap: 9px;
+    margin-bottom: 11px;
+    align-items: center;
+}
+
+input {
+    min-width: 0;
+    width: 100%;
+    padding: 12px 9px;
+    background: #101722;
+    color: white;
+    border: 1px solid #374256;
+    border-radius: 7px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #6487ff;
+}
+
+.remove {
+    background: #632d37;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.btn {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px 5px 5px 0;
+}
+
+.add {
+    background: #303e57;
+    color: white;
+}
+
+.calculate {
+    background: #5279f5;
+    color: white;
+}
+
+.print {
+    background: #24845d;
+    color: white;
+}
+
+.semester {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 38px;
+    gap: 9px;
+    margin-bottom: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.result {
+    background: #111a26;
+    border: 1px dashed #63738e;
+    padding: 22px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.result h2 {
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.result-title {
+    text-align: center;
+    color: #9daec9;
+    margin: 12px 0;
+}
+
+.big {
+    text-align: center;
+    font-size: 43px;
+    font-weight: bold;
+    color: #70a5ff;
+    margin: 10px 0 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+th, td {
+    padding: 11px 7px;
+    text-align: left;
+    border-bottom: 1px solid #354052;
+}
+
+th {
+    color: #9db1d2;
+}
+
+.summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #354052;
+    gap: 10px;
+}
+
+.note {
+    color: #9ca8ba;
+    font-size: 12px;
+    margin-top: 14px;
+    line-height: 1.5;
+}
+
+@media(max-width: 520px) {
+    body { padding: 12px; }
+    .panel { padding: 13px; }
+    .subject {
+        grid-template-columns: 1.5fr 0.7fr 0.7fr 32px;
+        gap: 5px;
+    }
+    .subject input {
+        font-size: 12px;
+        padding: 10px 5px;
+    }
+    .semester {
+        grid-template-columns: 1fr 0.8fr 0.8fr 32px;
+        gap: 5px;
+    }
+    .semester input {
+        font-size: 12px;
+        padding: 10px 5px;
+    }
+    .remove { height: 36px; }
+    .big { font-size: 36px; }
+}
+
+@media print {
+    body {
+        background: white;
+        color: black;
+        padding: 0;
+    }
+    header, .tabs, .panel, .btn, .note, .no-print {
+        display: none !important;
+    }
+    .container { max-width: 100%; }
+    .result {
+        display: block !important;
+        background: white;
+        color: black;
+        border: 1px solid #888;
+        padding: 20px;
+    }
+    .result h2, .result-title, .big, th {
+        color: black;
+    }
+    th, td, .summary {
+        border-color: #ccc;
+    }
+    table { font-size: 12px; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <h1>SGPA & CGPA Calculator</h1>
+    <p>Academic Performance Calculator | B.Tech</p>
+</header>
+
+<div class="tabs">
+    <button class="active" onclick="switchMode('sgpa',this)">
+        SGPA
+    </button>
+    <button onclick="switchMode('cgpa',this)">
+        CGPA
+    </button>
+</div>
+
+<!-- SGPA SECTION -->
+
+<div id="sgpaSection">
+
+<div class="panel">
+    <h2>Semester Details</h2>
+    <input id="semesterName" value="Semester 1"
+    placeholder="Semester Name">
+</div>
+
+<div class="panel">
+    <h2>Subject Details</h2>
+
+    <div class="subject" style="color:#9ca8ba;font-size:12px">
+        <span>Subject Name</span>
+        <span>Credits</span>
+        <span>Grade Point</span>
+        <span></span>
+    </div>
+
+    <div id="subjects"></div>
+
+    <button class="btn add" onclick="addSubject()">
+        + Add Subject
+    </button>
+
+    <button class="btn calculate" onclick="calculateSGPA()">
+        Calculate SGPA
+    </button>
+
+    <p class="note">
+        Enter the final grade point for each subject (0–10).
+        Credits can be edited according to your university.
+    </p>
+</div>
+
+</div>
+
+<!-- CGPA SECTION -->
+
+<div id="cgpaSection" class="hidden">
+
+<div class="panel">
+    <h2>Previous Semester Results</h2>
+
+    <div class="semester" style="color:#9ca8ba;font-size:12px">
+        <span>Semester</span>
+        <span>SGPA</span>
+        <span>Total Credits</span>
+        <span></span>
+    </div>
+
+    <div id="semesters"></div>
+
+    <button class="btn add" onclick="addSemester()">
+        + Add Semester
+    </button>
+
+    <button class="btn calculate" onclick="calculateCGPA()">
+        Calculate CGPA
+    </button>
+
+    <p class="note">
+        Enter each semester's SGPA and total earned/registered
+        credits according to your university's CGPA rules.
+    </p>
+</div>
+
+</div>
+
+<!-- RESULT RECEIPT -->
+
+<div id="result" class="result hidden">
+    <h2>ACADEMIC RESULT</h2>
+    <p class="result-title" id="resultType">SGPA RESULT</p>
+
+    <div class="big" id="score">0.00</div>
+
+    <div id="receiptDetails"></div>
+
+    <div id="receiptTable"></div>
+
+    <p class="note" style="text-align:center">
+        Generated using SGPA & CGPA Calculator
+        <br>Unofficial academic calculation receipt
+    </p>
+
+    <button class="btn print no-print" onclick="window.print()">
+        Print / Save as PDF
+    </button>
+</div>
+
+</div>
+
+<script>
+
+// DEFAULT 7 SUBJECTS
+
+const defaultSubjects = [
+    ["Mathematics",5,0],
+    ["Physics",4,0],
+    ["Programming",4,0],
+    ["Subject 4",3,0],
+    ["Subject 5",1,0],
+    ["Subject 6",1,0],
+    ["Subject 7",1,0]
+];
+
+const subjects = document.getElementById("subjects");
+
+function addSubject(name="New Subject",credits=3,grade=0) {
+    const div = document.createElement("div");
+    div.className = "subject";
+
+    const nameInput = document.createElement("input");
+    nameInput.value = name;
+    nameInput.placeholder = "Subject name";
+
+    const creditInput = document.createElement("input");
+    creditInput.type = "number";
+    creditInput.min = "0";
+    creditInput.value = credits;
+    creditInput.placeholder = "Credits";
+
+    const gradeInput = document.createElement("input");
+    gradeInput.type = "number";
+    gradeInput.min = "0";
+    gradeInput.max = "10";
+    gradeInput.step = "0.01";
+    gradeInput.value = grade;
+    gradeInput.placeholder = "Grade";
+
+    const remove = document.createElement("button");
+    remove.className = "remove";
+    remove.innerText = "×";
+    remove.onclick = () => div.remove();
+
+    div.append(nameInput,creditInput,gradeInput,remove);
+    subjects.appendChild(div);
+}
+
+defaultSubjects.forEach(s => addSubject(...s));
+
+function switchMode(mode,button) {
+    document.getElementById("sgpaSection").classList.toggle(
+        "hidden",mode !== "sgpa"
+    );
+
+    document.getElementById("cgpaSection").classList.toggle(
+        "hidden",mode !== "cgpa"
+    );
+
+    document.querySelectorAll(".tabs button").forEach(b =>
+        b.classList.remove("active")
+    );
+
+    button.classList.add("active");
+    document.getElementById("result").classList.add("hidden");
+}
+
+// SGPA CALCULATION
+
+function calculateSGPA() {
+    const rows = [...subjects.children];
+
+    if(rows.length === 0) {
+        alert("Add at least one subject.");
+        return;
+    }
+
+    let totalCredits = 0;
+    let totalPoints = 0;
+    let table = `
+    <table>
+    <tr>
+        <th>Subject</th>
+        <th>Credits</th>
+        <th>Grade</th>
+        <th>Points</th>
+    </tr>`;
+
+    for(let row of rows) {
+        const inputs = row.querySelectorAll("input");
+
+        const name = inputs[0].value.trim();
+        const credit = Number(inputs[1].value);
+        const grade = Number(inputs[2].value);
+
+        if(!name || !Number.isFinite(credit) ||
+           !Number.isFinite(grade) ||
+           credit <= 0 || grade < 0 || grade > 10 ||
+           inputs[1].value === "" || inputs[2].value === "") {
+            alert("Please enter valid subject names, credits and grade points (0–10).");
+            return;
+        }
+
+        const points = credit * grade;
+
+        totalCredits += credit;
+        totalPoints += points;
+
+        table += `
+        <tr>
+            <td>${escapeHTML(name)}</td>
+            <td>${credit}</td>
+            <td>${grade.toFixed(2)}</td>
+            <td>${points.toFixed(2)}</td>
+        </tr>`;
+    }
+
+    table += "</table>";
+
+    const sgpa = totalPoints / totalCredits;
+
+    showResult(
+        "SGPA RESULT",
+        sgpa,
+        `
+        <div class="summary">
+            <span>Semester</span>
+            <b>${escapeHTML(document.getElementById("semesterName").value)}</b>
+        </div>
+        <div class="summary">
+            <span>Total Credits</span>
+            <b>${totalCredits}</b>
+        </div>
+        <div class="summary">
+            <span>Total Weighted Points</span>
+            <b>${totalPoints.toFixed(2)}</b>
+        </div>`,
+        table
+    );
+}
+
+// CGPA CALCULATION
+
+const semesters = document.getElementById("semesters");
+
+function addSemester(name="",sgpa="",credits="") {
+    const div = document.createElement("div");
+    div.className = "semester";
+
+    const nameInput = document.createElement("input");
+    nameInput.placeholder = "Semester";
+    nameInput.value = name;
+
+    const sgpaInput = document.createElement("input");
+    sgpaInput.type = "number";
+    sgpaInput.placeholder = "SGPA";
+    sgpaInput.min = "0";
+    sgpaInput.max = "10";
+    sgpaInput.step = "0.01";
+    sgpaInput.value = sgpa;
+
+    const creditInput = document.createElement("input");
+    creditInput.type = "number";
+    creditInput.placeholder = "Credits";
+    creditInput.min = "0";
+    creditInput.value = credits;
+
+    const remove = document.createElement("button");
+    remove.className = "remove";
+    remove.innerText = "×";
+    remove.onclick = () => div.remove();
+
+    div.append(nameInput,sgpaInput,creditInput,remove);
+    semesters.appendChild(div);
+}
+
+function calculateCGPA() {
+    const rows = [...semesters.children];
+
+    if(rows.length === 0) {
+        alert("Add at least one semester.");
+        return;
+    }
+
+    let totalCredits = 0;
+    let totalPoints = 0;
+
+    let table = `
+    <table>
+    <tr>
+        <th>Semester</th>
+        <th>SGPA</th>
+        <th>Credits</th>
+        <th>Points</th>
+    </tr>`;
+
+    for(let row of rows) {
+        const inputs = row.querySelectorAll("input");
+
+        const name = inputs[0].value.trim();
+        const sgpa = Number(inputs[1].value);
+        const credits = Number(inputs[2].value);
+
+        if(!name || inputs[1].value === "" ||
+           inputs[2].value === "" ||
+           !Number.isFinite(sgpa) ||
+           !Number.isFinite(credits) ||
+           sgpa < 0 || sgpa > 10 || credits <= 0) {
+            alert("Please enter valid semester details.");
+            return;
+        }
+
+        const points = sgpa * credits;
+
+        totalCredits += credits;
+        totalPoints += points;
+
+        table += `
+        <tr>
+            <td>${escapeHTML(name)}</td>
+            <td>${sgpa.toFixed(2)}</td>
+            <td>${credits}</td>
+            <td>${points.toFixed(2)}</td>
+        </tr>`;
+    }
+
+    table += "</table>";
+
+    const cgpa = totalPoints / totalCredits;
+
+    showResult(
+        "CGPA RESULT",
+        cgpa,
+        `
+        <div class="summary">
+            <span>Semesters Counted</span>
+            <b>${rows.length}</b>
+        </div>
+        <div class="summary">
+            <span>Total Credits</span>
+            <b>${totalCredits}</b>
+        </div>
+        <div class="summary">
+            <span>Total Weighted Points</span>
+            <b>${totalPoints.toFixed(2)}</b>
+        </div>`,
+        table
+    );
+}
+
+// DISPLAY RECEIPT
+
+function showResult(type,score,details,table) {
+    document.getElementById("resultType").innerText = type;
+    document.getElementById("score").innerText = score.toFixed(2);
+    document.getElementById("receiptDetails").innerHTML = details;
+    document.getElementById("receiptTable").innerHTML = table;
+
+    document.getElementById("result").classList.remove("hidden");
+
+    document.getElementById("result").scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    });
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[char]);
+}
+
+</script>
+</body>
+</html>
